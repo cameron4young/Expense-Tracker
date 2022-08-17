@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://get.mavo.io/stable/mavo.js"></script>
+    <link rel="stylesheet" href="https://get.mavo.io/stable/mavo.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses Tracker</title>
+</head>
+<body>
+    <header>
+        <h1>Expenses Tracker</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Tracker</a></li>
+                <li><a href="responses.html">Responses</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div mv-app="expenses" mv-storage="local" mv-autosave="0">
+        <section>
+            <label>
+                Partner 1 Name:
+                <input type="text" property="name_1">
+            </label>
+            <label>
+                Partner 2 Name:
+                <input type="text" property="name_2">
+            </label>
+        </section>
+        <label>
+            Wage Split:
+            <p>What percentage of the expenses will Partner 1 be paying?:</p>
+            <input type="number" step=".01" max="1" property="wage_split">
+        </label>
+        <h2>Add Expenses:</h2>
+        <ul>
+            <li property="transaction" mv-multiple>
+                <label>
+                    Date
+                    <input type="date" property="date">
+                </label>
+                <label>
+                    Name:
+                    <select property="name" id="name">
+                        <option value="p1">[name_1]</option>
+                        <option value="p2">[name_2]</option>
+                    </select>
+                </label>
+
+                <label>
+                    Item:
+                    <input type="text" property="item">
+                </label>
+                <label>
+                    Cost
+                    <input type="number" key="cost" property="cost" minimum="0">
+                </label>
+                <label>
+                    Payment:
+                    <select property="payment" id="payment">
+                        <option value="partner">For Partner</option>
+                        <option value="joint">Joint Card</option>
+                    </select>
+                </label>
+            </li>
+        </ul>
+        <meta property="neo_to_trin" content="[filter(transaction, name='p1', payment='partner')]">
+        <meta property="neo_joint" content="[filter(transaction, name='p1', payment='joint')]">
+        <meta property="trin_to_neo" content="[filter(transaction, name='p2', payment='partner')]">
+        <meta property="trin_joint" content="[filter(transaction, name='p2', payment='joint')]">
+        <meta property="joint_cost" content = "[wage_split*sum(get(list(trin_joint), 'cost')) -((1-wage_split)*(sum(get(list(neo_joint), 'cost'))))]">
+        <meta property="partner_cost" content="[(sum(get(list(trin_to_neo), 'cost'))-sum(get(list(neo_to_trin), 'cost')))]">
+        <p>[if(partner_cost+joint_cost > 0, name_1, name_2)] owes $[partner_cost+joint_cost]</p>
+    <footer>
+        <p> Cameron Young - 6.S063 Assigment #1, Exercise #3</p>
+    </footer>
+</body>
+</html>
